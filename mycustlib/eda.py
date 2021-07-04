@@ -5,8 +5,13 @@ import pandas as pd
 import spacy
 nlp = spacy.load('en_core_web_sm')
 from spacy.lang.en.stop_words import STOP_WORDS
+
+
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+
+import plotly.graph_objs as go
+import plotly.express as px
 
 
 def explain_data(dataframe):
@@ -126,3 +131,76 @@ def create_word_cloud (text,stop_words = [],\
   
   return wordcloud
 
+def plot_one_cat(dataframe,column):
+  '''
+  Plots a frequency distribution of a column provided in a dataframe via a bar 
+  chart.Each bar is marked with percentage value out of 100 which is normalized
+  distribution of column against the granularity of data shared. 
+
+  '''
+  if dataframe[column].dtype in ['int64','int32']:
+    dataframe[column] = dataframe[column].astype('category')
+
+  value_count = dataframe[column].value_counts(normalize=True)*100
+  value = value_count.values.round(2)
+  index = list(value_count.index)
+  trace = go.Bar(y=value,x=index,text=value,textposition='auto')
+  data = [trace]
+
+  layout = go.Layout(title=f"{column} distribution",xaxis_title=column,\
+                     xaxis_tickangle=90)
+  figure = go.Figure(data=data,layout=layout)
+  figure.show()
+ 
+ 
+def plot_two_cat(dataframe,column_y,column_x):
+  '''
+  Plots a frequency distribution of a column_y on Y-axis while grouping by 
+  levels in column_x across X-axis using a stacked bar chart denoting 
+  percentage contribution of each Y in X against the granularity of data shared. 
+  '''
+
+  if dataframe[column_x].dtype in ['int64','int32']:
+    dataframe[column_x] = dataframe[column_x].astype('category')
+
+  if dataframe[column_y].dtype in ['int64','int32']:
+    dataframe[column_y] = dataframe[column_y].astype('category')
+   
+  levels_x = sorted(list(dataframe[column_x].unique()))
+  levels_y = list(dataframe[column_y].unique())
+  data = []
+  for i in levels_x:
+      value_count = dataframe[column_y][dataframe[column_x]==i].value_counts()
+      value = value_count.values
+      index = list(value_count.index)
+      trace = go.Bar(y=value,\
+                     x=index,\
+                     text=value,\
+                     textposition='inside',\
+                     name=i)
+      data = data + [trace]
+
+  layout = go.Layout(title=f"{column_y} vs {column_x} distribution",xaxis_title\
+                     = column_y,barmode='stack',barnorm='percent',\
+                     xaxis_tickangle=90)
+  figure = go.Figure(data=data,layout=layout)
+  figure.show()
+ 
+def plot_explained_variance(pca,threshold=.95):
+  ''' 
+  plots explained variance in a bar chart for PCA
+  '''
+  y = np.round(pca.explained_variance_ratio_*100,2)
+  x = np.arange(len(y))
+  y_cumu = y.cumsum()
+  y_thres = np.ones(len(y))*threshold*100
+
+
+  fig = go.Figure()
+  fig.add_trace(go.Bar(x=x, y=y,text=y,\
+                       textposition='auto',name='% Explained Variance'))
+  fig.add_trace(go.Scatter(x=x,y=y_cumu,\
+                           text=y_cumu,name="Cumulative Explained Variance"))
+  fig.add_trace(go.Scatter(x=x,y=y_thres,\
+                           name='95% explained variance',mode='markers'))
+  fig.show()
