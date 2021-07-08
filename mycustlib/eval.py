@@ -156,7 +156,7 @@ class ClassificationEvaluation:
                                                              'val_log_loss'],),\
                                            ignore_index=True)
 
-  def save_data(self):
+  def save_data(self,PROJECT_PATH):
       self.dataframe.to_csv(os.path.join(PROJECT_PATH,'eval','eval.csv'),
                             index=False)
 
