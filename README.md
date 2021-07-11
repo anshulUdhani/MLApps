@@ -15,6 +15,15 @@ Also, includes the custom library I keep updating to modularize my code.
   * Missing Data and Mis-spelled data in Author
   * Free text in Title, Synopsis 
 
+* [Telestra Network Disruption Prediction](https://www.kaggle.com/c/telstra-recruiting-network/overview)
+
+  This is a 5 year old competition but it was recommended to me by INSOFE faculty as being one of the good resource for practicing. I was able to secure a score of .49 and around 125th rank if I would have particiapted in competition. Below are some highlights into my apporoach to the problem
+  
+  * High Cardinality treatment for all categorical variables
+  * Feature selection using chi-square test
+  * Autoencoder to reduce dimensionality
+  * Stacking approach to modelling.
+
 * mycustlib
 
   Python modules used in code help to modularize the code.
